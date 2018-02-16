@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='viterbi',
+    name='pos',
     version='1.0.0',
     description='Viterbi DP algorithm for Hidden Markov Model',
     url='',
