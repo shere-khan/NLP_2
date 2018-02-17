@@ -1,4 +1,4 @@
-import sys, sqlite3
+import sqlite3
 
 
 def create(c):
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     conn = sqlite3.connect('corpus.db')
     c = conn.cursor()
 
-    # create(c)
+    create(c)
     # delete(c)
 
     conn.commit()
