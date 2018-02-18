@@ -8,13 +8,40 @@ def insert(cursor, table_name, column_name, value):
 
 
 def insert_word_and_next(cursor, word, next_word):
-    cursor.execute('''insert into word (word_, next_word) values ("{wordval}", "{nextwordval}")'''
-                   .format(wordval=word, nextwordval=next_word))
+    cursor.execute(
+        '''insert into word (word_, next_word) values ("{wordval}", "{nextwordval}")'''
+            .format(wordval=word, nextwordval=next_word))
 
 
 def insert_tag_and_next(cursor, tag, next_tag):
-    cursor.execute('''insert into tag (tag_, next_tag) values ("{tagval}", "{nexttagval}")'''
-                   .format(tagval=tag, nexttagval=next_tag))
+    cursor.execute(
+        '''insert into tag (tag_, next_tag) values ("{tagval}", "{nexttagval}")'''
+            .format(tagval=tag, nexttagval=next_tag))
+
+
+def get_tags_for_word(cursor, word):
+    cursor.execute('''select * from tag where word_ = "{wd}"'''.format(wd=word))
+
+    return cursor.fetchall()
+
+
+def get_transition_prob(cursor, prevtag, tag):
+    cursor.execute('''select * from tag where tag_ = "{t}"'''.format(
+        t=tag))
+    tagcount = len(cursor.fetchall())
+
+    cursor.execute('''SELECT * FROM tag WHERE prev_tag = "{pt}"'''.format(pt=prevtag))
+    tag_combo_count = len(cursor.fetchall())
+
+    return tag_combo_count / tagcount
+
+
+def get_word_likelihood(cursor, word, tag):
+    wt = cursor.execute('''select * from word where tag_ = "{tg}" and word_ = "{wd}"'''
+                        .format(tg=tag, wd=word))
+    t = cursor.execute('''select * from word where tag_ = "{tg}"'''.format(tg=tag))
+
+    return wt / t
 
 
 def has_special_char(s):
@@ -32,7 +59,7 @@ def parse_line(line):
     return word, tag
 
 
-if __name__ == '__main__':
+def readdata():
     file_name = sys.argv[1]
     conn = sqlite3.connect('corpus.db')
     curs = conn.cursor()
@@ -61,3 +88,7 @@ if __name__ == '__main__':
 
     conn.commit()
     conn.close()
+
+
+if __name__ == '__main__':
+    readdata()
