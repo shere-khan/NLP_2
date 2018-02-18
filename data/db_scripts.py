@@ -2,8 +2,8 @@ import sqlite3
 
 
 def create(c):
-    c.execute('''CREATE TABLE word (word_ TEXT, count REAL)''')
-    c.execute('''CREATE TABLE tag (tag_ TEXT, count REAL)''')
+    c.execute('''CREATE TABLE word (word_ text, next_word text, count real)''')
+    c.execute('''CREATE TABLE tag (tag_ text, next_tag text, count real)''')
 
 
 def delete(c):
