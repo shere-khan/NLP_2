@@ -2,7 +2,7 @@ import sqlite3
 
 
 def create(c):
-    c.execute('''CREATE TABLE word (word_ text, next_word text, tag_ text, count real)''')
+    c.execute('''CREATE TABLE word (word_ text, tag_ text, count real)''')
     c.execute('''CREATE TABLE tag (tag_ text, prev_tag text, count real)''')
 
 

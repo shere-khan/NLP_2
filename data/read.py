@@ -7,16 +7,15 @@ def insert(cursor, table_name, column_name, value):
                    .format(tn=table_name, cn=column_name, wv=value))
 
 
-def insert_word_and_next(cursor, word, next_word):
+def insert_word(cursor, word):
     cursor.execute(
-        '''insert into word (word_, next_word) values ("{wordval}", "{nextwordval}")'''
-            .format(wordval=word, nextwordval=next_word))
+        '''insert into word (word_) values ("{wordval}")'''.format(wordval=word))
 
 
-def insert_tag_and_next(cursor, tag, next_tag):
+def insert_tag_and_prev(cursor, tag, prevtag):
     cursor.execute(
-        '''insert into tag (tag_, next_tag) values ("{tagval}", "{nexttagval}")'''
-            .format(tagval=tag, nexttagval=next_tag))
+        '''insert into tag (tag_, prev_tag) values ("{tagval}", "{pt}")'''
+            .format(tagval=tag, pt=prevtag))
 
 
 def get_tags_for_word(cursor, word):
@@ -72,19 +71,22 @@ def readdata():
 
         for i in range(0, len(lines)):
             line = lines[i]
-            if i + 1 < len(lines):
-                nextline = lines[i + 1]
 
-            # insert word into word_ table
-            if line != '\n':
-                word, tag = parse_line(line)
-                if nextline != '\n':
-                    nextword, nexttag = parse_line(nextline)
-                    insert_tag_and_next(curs, tag, nexttag)
-                    insert_word_and_next(curs, word, nextword)
-                else:
-                    insert_tag_and_next(curs, tag, '')
-                    insert_word_and_next(curs, word, '')
+            if i >= 1:
+                prevline = lines[i - 1]
+                if line != '\n':
+                    word, tag = parse_line(line)
+                    insert_word(curs, word)
+
+                    prevtag = ""
+                    if prevline != '\n':
+                        prev = parse_line(prevline)
+                        prevtag = prev[1]
+                    insert_tag_and_prev(curs, tag, prevtag)
+            else:
+                if line != '\n':
+                    word, tag = parse_line(line)
+                    insert_word(curs, word)
 
     conn.commit()
     conn.close()
