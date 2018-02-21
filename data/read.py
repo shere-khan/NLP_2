@@ -7,9 +7,9 @@ def insert(cursor, table_name, column_name, value):
                    .format(tn=table_name, cn=column_name, wv=value))
 
 
-def insert_word(cursor, word):
-    cursor.execute(
-        '''insert into word (word_) values ("{wordval}")'''.format(wordval=word))
+def insert_word(cursor, word, tag):
+    cursor.execute('''insert into word (word_, tag_) values ("{wordval}", "{tg}")'''
+                   .format(wordval=word, tg=tag))
 
 
 def insert_tag_and_prev(cursor, tag, prevtag):
@@ -19,28 +19,34 @@ def insert_tag_and_prev(cursor, tag, prevtag):
 
 
 def get_tags_for_word(cursor, word):
-    cursor.execute('''select * from tag where word_ = "{wd}"'''.format(wd=word))
+    cursor.execute('''select distinct tag_ from word where word_ = "{wd}"'''.format(
+        wd=word))
+    res = cursor.fetchall()
 
-    return cursor.fetchall()
+    return res
 
 
-def get_transition_prob(cursor, prevtag, tag):
-    cursor.execute('''select * from tag where tag_ = "{t}"'''.format(
-        t=tag))
-    tagcount = len(cursor.fetchall())
+def get_transition_prob(cursor, tag, prevtag):
+    cursor.execute('''select count(*) from tag where tag_ = "{t}"'''.format(t=tag))
+    tagcount = cursor.fetchall()
 
-    cursor.execute('''SELECT * FROM tag WHERE prev_tag = "{pt}"'''.format(pt=prevtag))
-    tag_combo_count = len(cursor.fetchall())
+    cursor.execute('''SELECT count(*) FROM tag WHERE tag_ = "{t}" and prev_tag = "{pt}"'''
+                   .format(t=tag, pt=prevtag))
+    tag_combo_count = cursor.fetchall()
 
-    return tag_combo_count / tagcount
+    return tag_combo_count[0][0] / tagcount[0][0]
 
 
 def get_word_likelihood(cursor, word, tag):
-    wt = cursor.execute('''select * from word where tag_ = "{tg}" and word_ = "{wd}"'''
-                        .format(tg=tag, wd=word))
-    t = cursor.execute('''select * from word where tag_ = "{tg}"'''.format(tg=tag))
+    cursor.execute(
+        '''select count(word_) from word where tag_ = "{tg}" and word_ = "{wd}"'''
+            .format(tg=tag, wd=word))
+    res1 = cursor.fetchall()
+    cursor.execute('''select count(word_) from word where tag_ = "{tg}"'''.format(
+        tg=tag))
+    res2 = cursor.fetchall()
 
-    return wt / t
+    return res1[0][0] / res2[0][0]
 
 
 def has_special_char(s):
@@ -76,17 +82,19 @@ def readdata():
                 prevline = lines[i - 1]
                 if line != '\n':
                     word, tag = parse_line(line)
-                    insert_word(curs, word)
+                    insert_word(curs, word, tag)
 
                     prevtag = ""
                     if prevline != '\n':
                         prev = parse_line(prevline)
                         prevtag = prev[1]
+
                     insert_tag_and_prev(curs, tag, prevtag)
             else:
                 if line != '\n':
                     word, tag = parse_line(line)
-                    insert_word(curs, word)
+                    insert_word(curs, word, tag)
+                    insert_tag_and_prev(curs, tag, "")
 
     conn.commit()
     conn.close()
