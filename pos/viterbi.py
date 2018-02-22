@@ -46,7 +46,7 @@ def initializegraph(cursor, sent, exec_columns):
 
 def find_tagging(sentence):
     exec_columns = list()
-    g = initializegraph(curs, sent, exec_columns)
+    g = initializegraph(curs, sentence, exec_columns)
     viterbi(g, exec_columns)
     print_best_path(exec_columns)
 
@@ -78,9 +78,9 @@ def print_best_path(exec_column):
     best = max(exec_column[-1], key=lambda x: x.element.best_prob_so_far)
 
     print('word and tagging in reverse')
-    while best.prev:
+    while best.element.prev:
         print('word: {0} tag: {1}'.format(best.element.word, best.element.tag))
-        best = best.prev
+        best = best.element.prev
 
 
 if __name__ == '__main__':
