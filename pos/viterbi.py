@@ -75,6 +75,22 @@ def viterbi(g, exec_columns):
             v.element.prev = best_path.edge.opposite(v)
 
 
+def print_tags_observed(curs):
+    tags = read.get_all_tags(curs)
+
+    print('All tags observed:')
+    for i, tag in enumerate(tags):
+        print("{0} {1}".format(i, tag[0]))
+
+
+def print_tag_dist(curs):
+    tags = read.get_all_tags(curs)
+
+    for tag in tags:
+        p = read.get_prob_for_tag(curs, tag[0])
+        print('{0} {1}'.format(tag[0], p))
+
+
 def print_best_path(exec_column):
     best = max(exec_column[-1], key=lambda x: x.element.best_prob_so_far)
 
@@ -88,20 +104,19 @@ if __name__ == '__main__':
     print('University of Central Florida')
     print('CAP6640 String 2018 - Dr. Glinos')
     print()
-    print('Viterbi Algorithm')
+    print('Viterbi Algorithm HMM Tagger by Justin Barry')
 
     test_file = sys.argv[1]
 
     conn = sqlite3.connect('../data/corpus.db')
     curs = conn.cursor()
 
-    try:
-        f = open(test_file)
+    print_tags_observed(curs)
+    print_tag_dist(curs)
+
+    with open(test_file) as f:
         for line in f:
+            print()
             line = line.lower()
             sent = line.split()
             find_tagging(sent)
-
-        f.close()
-    except FileNotFoundError:
-        print('file not found')

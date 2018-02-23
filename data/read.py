@@ -18,9 +18,28 @@ def insert_tag_and_prev(cursor, tag, prevtag):
             .format(tagval=tag, pt=prevtag))
 
 
+def get_all_tags(cursor):
+    cursor.execute('''select distinct tag_ from tag order by tag_'''.format())
+
+    return cursor.fetchall()
+
+
+def get_prob_for_tag(curs, tag):
+    curs.execute('''select count(*) from tag where tag_ = "{t}"'''.format(t=tag))
+    res = curs.fetchall()[0][0]
+    tot = get_tag_total_count(curs)
+
+    return res / tot
+
+
+def get_tag_total_count(curs):
+    curs.execute('''select count(*) from tag''')
+
+    return curs.fetchall()[0][0]
+
+
 def get_tags_for_word(cursor, word):
-    cursor.execute('''select distinct tag_ from word where word_ = "{wd}"'''.format(
-        wd=word))
+    cursor.execute('''select distinct tag_ from word where word_ = "{wd}"'''.format(wd=word))
     res = cursor.fetchall()
 
     return res
