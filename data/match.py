@@ -5,8 +5,8 @@ class Rules:
     def __init__(self):
         self.was_rule_applied = False
 
-    def rule_sess(self, s):
-        exp = r'sess$'
+    def rule_sses(self, s):
+        exp = r'sses$'
         match = re.search(exp, s)
         if match:
             s = s[:-2]
@@ -42,7 +42,7 @@ class Rules:
         return s
 
     def rule_ches(self, s):
-        exp = r'zes$'
+        exp = r'ches$'
         match = re.search(exp, s)
         if match:
             s = s[:-2]
@@ -82,18 +82,18 @@ class Rules:
     def lemmatize(self, s):
         s = self.rule_ches(s)
         if not self.was_rule_applied:
-            self.rule_ies(s)
+            s = self.rule_ies(s)
         if not self.was_rule_applied:
-            self.rule_men(s)
+            s = self.rule_men(s)
         if not self.was_rule_applied:
-            self.rule_ses(s)
+            s = self.rule_sses(s)
         if not self.was_rule_applied:
-            self.rule_sess(s)
+            s = self.rule_ses(s)
         if not self.was_rule_applied:
-            self.rule_shes(s)
+            s = self.rule_shes(s)
         if not self.was_rule_applied:
-            self.rule_xes(s)
+            s = self.rule_xes(s)
         if not self.was_rule_applied:
-            self.rule_zes(s)
+            s = self.rule_zes(s)
 
         return s
