@@ -10,6 +10,7 @@ class WordVertex:
         self.likelihood = likelihood
         self.best_prob_so_far = self.likelihood
         self.best_prev = None
+        self.prev = None
 
     def __repr__(self):
         return 'word: {0} tag: {1} likelihood: {2}'.format(self.word, self.tag,
