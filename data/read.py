@@ -1,5 +1,5 @@
 import sys, sqlite3, re
-from data import db_scripts
+from data import db_scripts, match
 
 
 def insert(cursor, table_name, column_name, value):
@@ -78,6 +78,9 @@ def has_special_char(s):
 def parse_line(line):
     entry = line.split()
     word = entry[0].lower()
+    r = match.Rules()
+    word = r.lemmatize(s)
+
     tag = entry[1].split('\n')[0]
 
     return word, tag

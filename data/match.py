@@ -1,75 +1,99 @@
 import re
 
 
-def rule_sess(s):
-    exp = r'sess$'
-    match = re.search(exp, s)
-    if match:
-        s = s[:-2]
+class Rules:
+    def __init__(self):
+        self.was_rule_applied = False
 
-    return s
+    def rule_sess(self, s):
+        exp = r'sess$'
+        match = re.search(exp, s)
+        if match:
+            s = s[:-2]
+            self.was_rule_applied = True
 
+        return s
 
-def rule_xes(s):
-    exp = r'xes$'
-    match = re.search(exp, s)
-    if match:
-        s = s[:-2]
+    def rule_xes(self, s):
+        exp = r'xes$'
+        match = re.search(exp, s)
+        if match:
+            s = s[:-2]
+            self.was_rule_applied = True
 
-    return s
+        return s
 
+    def rule_ses(self, s):
+        exp = r'ses$'
+        match = re.search(exp, s)
+        if match:
+            s = s[:-1]
+            self.was_rule_applied = True
 
-def rule_ses(s):
-    exp = r'ses$'
-    match = re.search(exp, s)
-    if match:
-        s = s[:-1]
+        return s
 
-    return s
+    def rule_zes(self, s):
+        exp = r'zes$'
+        match = re.search(exp, s)
+        if match:
+            s = s[:-1]
+            self.was_rule_applied = True
 
+        return s
 
-def rule_zes(s):
-    exp = r'zes$'
-    match = re.search(exp, s)
-    if match:
-        s = s[:-1]
+    def rule_ches(self, s):
+        exp = r'zes$'
+        match = re.search(exp, s)
+        if match:
+            s = s[:-2]
+            self.was_rule_applied = True
 
-    return s
+        return s
 
+    def rule_shes(self, s):
+        exp = r'shes$'
+        match = re.search(exp, s)
+        if match:
+            s = s[:-2]
+            self.was_rule_applied = True
 
-def rule_ches(s):
-    exp = r'zes$'
-    match = re.search(exp, s)
-    if match:
-        s = s[:-2]
+        return s
 
-    return s
+    def rule_men(self, s):
+        exp = r'men$'
+        match = re.search(exp, s)
+        if match:
+            s = s[:-2]
+            s += 'an'
+            self.was_rule_applied = True
 
+        return s
 
-def rule_shes(s):
-    exp = r'shes$'
-    match = re.search(exp, s)
-    if match:
-        s = s[:-2]
+    def rule_ies(self, s):
+        exp = r'ies$'
+        match = re.search(exp, s)
+        if match:
+            s = s[:-3]
+            s += 'y'
+            self.was_rule_applied = True
 
-    return s
+        return s
 
+    def lemmatize(self, s):
+        s = self.rule_ches(s)
+        if not self.was_rule_applied:
+            self.rule_ies(s)
+        if not self.was_rule_applied:
+            self.rule_men(s)
+        if not self.was_rule_applied:
+            self.rule_ses(s)
+        if not self.was_rule_applied:
+            self.rule_sess(s)
+        if not self.was_rule_applied:
+            self.rule_shes(s)
+        if not self.was_rule_applied:
+            self.rule_xes(s)
+        if not self.was_rule_applied:
+            self.rule_zes(s)
 
-def rule_men(s):
-    exp = r'men$'
-    match = re.search(exp, s)
-    if match:
-        s = s[:-2]
-    s += 'an'
-
-    return s
-
-
-def rule_ies(s):
-    exp = r'ies$'
-    match = re.search(exp, s)
-    if match:
-        s = s[:-3]
-    s += 'y'
-
-    return s
+        return s
