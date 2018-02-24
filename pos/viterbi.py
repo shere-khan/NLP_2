@@ -1,6 +1,6 @@
 import sys, sqlite3
 from datastructures import graph
-from data import read
+from data import read, queries
 
 
 class WordVertex:
@@ -28,15 +28,15 @@ def initializegraph(cursor, sent, exec_columns):
 
     for w in sent:
         nextnodes = list()
-        wtags = read.get_tags_for_word(cursor, w)
+        wtags = queries.get_tags_for_word(cursor, w)
 
         for wtag in wtags:
-            likelihood = read.get_word_likelihood(cursor, w, wtag[0])
+            likelihood = queries.get_word_likelihood(cursor, w, wtag[0])
             v = g.insert_vertex(WordVertex(w, wtag[0], likelihood))
             nextnodes.append(v)
 
             for u in prevnodes:
-                transprob = read.get_transition_prob(cursor, wtag[0], u.element.tag)
+                transprob = queries.get_transition_prob(cursor, wtag[0], u.element.tag)
                 g.insert_edge(u, v, transprob)
 
         exec_columns.append(nextnodes)
@@ -77,10 +77,10 @@ def viterbi(g, exec_columns):
 
 
 def print_emission_probs(curs):
-    words = read.get_distinct_words(curs)
-    tags = read.get_distinct_tags(curs)
-    for w in words:
-        for t in tags
+    words = queries.get_distinct_words(curs)
+    tags = queries.get_distinct_tags(curs)
+    # for w in words:
+    #     for t in tags:
     # for each word
         # for each tag
             # get ct(word, tag)
@@ -88,7 +88,7 @@ def print_emission_probs(curs):
 
 
 def print_tags_observed(curs):
-    tags = read.get_distinct_tags(curs)
+    tags = queries.get_distinct_tags(curs)
 
     print('All tags observed:')
     for i, tag in enumerate(tags):
@@ -96,12 +96,12 @@ def print_tags_observed(curs):
 
 
 def print_tag_dist(curs):
-    tags = read.get_distinct_tags(curs)
+    tags = queries.get_distinct_tags(curs)
 
     print('Initial Distributions')
     for tag in tags:
-        totsent = read.get_sentence_total(curs)
-        initct = read.get_tag_initial_prob(curs, tag[0])
+        totsent = queries.get_sentence_total(curs)
+        initct = queries.get_tag_initial_prob(curs, tag[0])
         p = initct / totsent
         print('{0} {1:.5f}'.format(tag[0], p))
 
@@ -131,9 +131,9 @@ if __name__ == '__main__':
     # print_tag_dist(curs)
     print_emission_probs(curs)
 
-    # with open(test_file) as f:
-    #     for line in f:
-    #         print()
-    #         line = line.lower()
-    #         sent = line.split()
-    #         find_tagging(sent)
+    with open(test_file) as f:
+        for line in f:
+            print()
+            line = line.lower()
+            sent = line.split()
+            find_tagging(sent)
