@@ -28,7 +28,7 @@ def initializegraph(cursor, sent, exec_columns):
 
     for w in sent:
         nextnodes = list()
-        wtags = queries.get_tags_for_word(cursor, w)
+        wtags = queries.get_distinct_tags_for_word(cursor, w)
 
         for wtag in wtags:
             likelihood = queries.get_word_likelihood(cursor, w, wtag[0])
@@ -78,13 +78,13 @@ def viterbi(g, exec_columns):
 
 def print_emission_probs(curs):
     words = queries.get_distinct_words(curs)
-    tags = queries.get_distinct_tags(curs)
-    # for w in words:
-    #     for t in tags:
-    # for each word
-        # for each tag
-            # get ct(word, tag)
-            # get tag count
+    for w in words:
+        w = w[0]
+        tags = queries.get_distinct_tags_for_word(curs, w)
+        for t in tags:
+            t = t[0]
+            like = queries.get_word_likelihood(curs, w, t)
+            print('{0} {1} {2:.6f}'.format(w, t, like))
 
 
 def print_tags_observed(curs):

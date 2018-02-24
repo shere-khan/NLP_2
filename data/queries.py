@@ -40,7 +40,7 @@ def get_tag_total_count(curs):
     return curs.fetchall()[0][0]
 
 
-def get_tags_for_word(cursor, word):
+def get_distinct_tags_for_word(cursor, word):
     cursor.execute(
         '''select distinct tag_ from word where word_ = "{wd}"'''.format(wd=word))
     res = cursor.fetchall()
@@ -60,19 +60,14 @@ def get_transition_prob(cursor, tag, prevtag):
 
 
 def get_word_likelihood(cursor, word, tag):
-    cursor.execute(
-        '''select count(word_) from word where tag_ = "{tg}" and word_ = "{wd}"'''
-            .format(tg=tag, wd=word))
-    res1 = cursor.fetchall()
-    cursor.execute('''select count(word_) from word where tag_ = "{tg}"'''.format(
-        tg=tag))
-    res2 = cursor.fetchall()
+    res1 = get_count_word_and_tag(cursor, word, tag)
+    res2 = get_tag_count(cursor, tag)
 
-    return res1[0][0] / res2[0][0]
+    return res1 / res2
 
 
 def get_distinct_words(curs):
-    curs.execute('''SELECT DISTINCT word_ FROM word''')
+    curs.execute('''select distinct word_ from word order by word_ ASC''')
 
     return curs.fetchall()
 
@@ -90,6 +85,14 @@ def insert_sentence_total(curs, count):
 
 
 def get_sentence_total(curs):
-    curs.execute('''SELECT tot_sentences FROM statistics''')
+    curs.execute('''select tot_sentences FROM statistics''')
+
+    return curs.fetchall()[0][0]
+
+
+def get_count_word_and_tag(curs, word, tag):
+    curs.execute(
+        '''select count(word_) from word where tag_ = "{tg}" and word_ = "{wd}"'''
+            .format(tg=tag, wd=word))
 
     return curs.fetchall()[0][0]
