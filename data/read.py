@@ -18,8 +18,8 @@ def insert_tag_and_prev(cursor, tag, prevtag):
             .format(tagval=tag, pt=prevtag))
 
 
-def get_all_tags(cursor):
-    cursor.execute('''select distinct tag_ from tag order by tag_'''.format())
+def get_distinct_tags(cursor):
+    cursor.execute('''SELECT DISTINCT tag_ FROM tag ORDER BY tag_'''.format())
 
     return cursor.fetchall()
 
@@ -32,14 +32,21 @@ def get_prob_for_tag(curs, tag):
     return res / tot
 
 
+def get_tag_count(cursor, tag):
+    cursor.execute('''select count(*) from tag where tag_ = "{t}"'''.format(t=tag))
+
+    return cursor.fetchall()[0][0]
+
+
 def get_tag_total_count(curs):
-    curs.execute('''select count(*) from tag''')
+    curs.execute('''SELECT count(*) FROM tag''')
 
     return curs.fetchall()[0][0]
 
 
 def get_tags_for_word(cursor, word):
-    cursor.execute('''select distinct tag_ from word where word_ = "{wd}"'''.format(wd=word))
+    cursor.execute(
+        '''select distinct tag_ from word where word_ = "{wd}"'''.format(wd=word))
     res = cursor.fetchall()
 
     return res
@@ -68,6 +75,30 @@ def get_word_likelihood(cursor, word, tag):
     return res1[0][0] / res2[0][0]
 
 
+def get_distinct_words(curs):
+    curs.execute('''SELECT DISTINCT word_ FROM word''')
+
+    return curs.fetchall()
+
+
+def get_tag_initial_prob(cursor, tag):
+    cursor.execute('''select count(*) from tag where prev_tag = "" and tag_ = "{t}"'''
+                   .format(t=tag))
+
+    return cursor.fetchall()[0][0]
+
+
+def insert_sentence_total(curs, count):
+    curs.execute('''insert into statistics (tot_sentences) values ({ct})'''
+                 .format(ct=count))
+
+
+def get_sentence_total(curs):
+    curs.execute('''SELECT tot_sentences FROM statistics''')
+
+    return curs.fetchall()[0][0]
+
+
 def has_special_char(s):
     exp = r'[\W]'
     match = re.search(exp, s)
@@ -79,11 +110,16 @@ def parse_line(line):
     entry = line.split()
     word = entry[0].lower()
     r = match.Rules()
-    word = r.lemmatize(s)
+    word = r.lemmatize(word)
 
     tag = entry[1].split('\n')[0]
 
     return word, tag
+
+
+class Stats:
+    def __init__(self):
+        self.sent_count = 0
 
 
 def readdata():
@@ -94,6 +130,7 @@ def readdata():
     db_scripts.delete(curs)
     db_scripts.create(curs)
 
+    sent_count = 0
     with open(file_name, 'r') as f:
         lines = f.readlines()
 
@@ -107,17 +144,21 @@ def readdata():
                     insert_word(curs, word, tag)
 
                     prevtag = ""
+
                     if prevline != '\n':
                         prev = parse_line(prevline)
                         prevtag = prev[1]
 
                     insert_tag_and_prev(curs, tag, prevtag)
+                else:
+                    sent_count += 1
             else:
                 if line != '\n':
                     word, tag = parse_line(line)
                     insert_word(curs, word, tag)
                     insert_tag_and_prev(curs, tag, "")
 
+    insert_sentence_total(curs, sent_count)
     conn.commit()
     conn.close()
 

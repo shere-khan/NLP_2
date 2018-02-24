@@ -67,7 +67,8 @@ def viterbi(g, exec_columns):
             # and stores best path (prev) and prob (maxprob) in v
             for e in edges_in:
                 prev = e.opposite(v)
-                possible_best = prev.element.best_prob_so_far * e.element * v.element.likelihood
+                possible_best = prev.element.best_prob_so_far * e.element \
+                                * v.element.likelihood
                 probs.append(Path(e, possible_best))
 
             best_path = max(probs, key=lambda x: x.prob)
@@ -75,8 +76,19 @@ def viterbi(g, exec_columns):
             v.element.prev = best_path.edge.opposite(v)
 
 
+def print_emission_probs(curs):
+    words = read.get_distinct_words(curs)
+    tags = read.get_distinct_tags(curs)
+    for w in words:
+        for t in tags
+    # for each word
+        # for each tag
+            # get ct(word, tag)
+            # get tag count
+
+
 def print_tags_observed(curs):
-    tags = read.get_all_tags(curs)
+    tags = read.get_distinct_tags(curs)
 
     print('All tags observed:')
     for i, tag in enumerate(tags):
@@ -84,11 +96,14 @@ def print_tags_observed(curs):
 
 
 def print_tag_dist(curs):
-    tags = read.get_all_tags(curs)
+    tags = read.get_distinct_tags(curs)
 
+    print('Initial Distributions')
     for tag in tags:
-        p = read.get_prob_for_tag(curs, tag[0])
-        print('{0} {1}'.format(tag[0], p))
+        totsent = read.get_sentence_total(curs)
+        initct = read.get_tag_initial_prob(curs, tag[0])
+        p = initct / totsent
+        print('{0} {1:.5f}'.format(tag[0], p))
 
 
 def print_best_path(exec_column):
@@ -111,12 +126,14 @@ if __name__ == '__main__':
     conn = sqlite3.connect('../data/corpus.db')
     curs = conn.cursor()
 
-    print_tags_observed(curs)
-    print_tag_dist(curs)
+    # print_tags_observed(curs)
+    # print()
+    # print_tag_dist(curs)
+    print_emission_probs(curs)
 
-    with open(test_file) as f:
-        for line in f:
-            print()
-            line = line.lower()
-            sent = line.split()
-            find_tagging(sent)
+    # with open(test_file) as f:
+    #     for line in f:
+    #         print()
+    #         line = line.lower()
+    #         sent = line.split()
+    #         find_tagging(sent)

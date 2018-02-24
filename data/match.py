@@ -6,7 +6,7 @@ class Rules:
         self.was_rule_applied = False
 
     def rule_sses(self, s):
-        exp = r'sses$'
+        exp = r'(?<=[\w])sses$'
         match = re.search(exp, s)
         if match:
             s = s[:-2]
@@ -15,7 +15,7 @@ class Rules:
         return s
 
     def rule_xes(self, s):
-        exp = r'xes$'
+        exp = r'(?<=[\w])xes$'
         match = re.search(exp, s)
         if match:
             s = s[:-2]
@@ -24,7 +24,7 @@ class Rules:
         return s
 
     def rule_ses(self, s):
-        exp = r'ses$'
+        exp = r'(?<=[\w])ses$'
         match = re.search(exp, s)
         if match:
             s = s[:-1]
@@ -33,7 +33,7 @@ class Rules:
         return s
 
     def rule_zes(self, s):
-        exp = r'zes$'
+        exp = r'(?<=[\w])zes$'
         match = re.search(exp, s)
         if match:
             s = s[:-1]
@@ -42,7 +42,7 @@ class Rules:
         return s
 
     def rule_ches(self, s):
-        exp = r'ches$'
+        exp = r'(?<=[\w])ches$'
         match = re.search(exp, s)
         if match:
             s = s[:-2]
@@ -51,7 +51,7 @@ class Rules:
         return s
 
     def rule_shes(self, s):
-        exp = r'shes$'
+        exp = r'(?<=[\w])shes$'
         match = re.search(exp, s)
         if match:
             s = s[:-2]
@@ -60,7 +60,7 @@ class Rules:
         return s
 
     def rule_men(self, s):
-        exp = r'men$'
+        exp = r'(?<=[\w])men$'
         match = re.search(exp, s)
         if match:
             s = s[:-2]
@@ -70,7 +70,7 @@ class Rules:
         return s
 
     def rule_ies(self, s):
-        exp = r'ies$'
+        exp = r'(?<=[\w])ies$'
         match = re.search(exp, s)
         if match:
             s = s[:-3]
