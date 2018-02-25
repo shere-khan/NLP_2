@@ -37,7 +37,10 @@ def initializegraph(cursor, sent, exec_columns):
 
         for wtag in wtags:
             wtag = wtag[0]
-            likelihood = queries.get_word_likelihood(cursor, w, wtag)
+            if isword:
+                likelihood = queries.get_word_likelihood(cursor, w, wtag)
+            else:
+                likelihood = 1
             v = g.insert_vertex(WordVertex(w, wtag, likelihood))
             nextnodes.append(v)
 
@@ -156,10 +159,23 @@ def print_transition_probs(curs):
     prevtags = queries.get_distinct_tags(curs)
     for pt in prevtags:
         pt = pt[0]
+        resultlist = list()
         tags = queries.get_all_distinct_tags_for_previous_tag(curs, pt)
+
+        totprob = 0
         for t in tags:
             t = t[0]
             prob = queries.get_transition_prob2(curs, t, pt)
+            resultlist.append(((t, pt), prob))
+            totprob += prob
+
+        print('[{:.6f}]'.format(totprob), end='   ')
+        # print('{:<.6f}'.format(like), end='\n')
+        for res in resultlist:
+            tags = res[0]
+            t = tags[0]
+            pt = tags[1]
+            prob = res[1]
             print('[{0} | {1}] {2:.6f}'.format(t, pt, prob), end=' ')
         print()
     print()
@@ -220,11 +236,11 @@ if __name__ == '__main__':
     conn = sqlite3.connect('../data/corpus.db')
     curs = conn.cursor()
 
-    print_tags_observed(curs)
-    print_tag_dist(curs)
-    if emissions_flag == 'True':
-        print_emission_probs(curs)
-    print_transition_probs(curs)
+    # print_tags_observed(curs)
+    # print_tag_dist(curs)
+    # if emissions_flag == 'True':
+    #     print_emission_probs(curs)
+    # print_transition_probs(curs)
     print('Corpus Features: ', end='\n\n')
     print_tag_count(curs)
     print_lexicals(curs)
