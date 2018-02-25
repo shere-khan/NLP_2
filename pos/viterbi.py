@@ -54,6 +54,7 @@ def initializegraph(cursor, sent, exec_columns):
 def find_tagging(sentence):
     exec_columns = list()
     g = initializegraph(curs, sentence, exec_columns)
+    print('Intermediate Values:',end='\n\n')
     viterbi(g, sentence, exec_columns)
     print_best_path(exec_columns)
 
@@ -95,7 +96,7 @@ def viterbi(g, sent, exec_columns):
             prob = res[1]
             prev = edges[0]
             cur = edges[1]
-            print('({0:.6f}, {1})'.format(prob/totprob, prev), end=' ')
+            print('({0:.6f}, {1})'.format(prob / totprob, prev), end=' ')
             sys.stdout.flush()
 
         print()
@@ -109,7 +110,10 @@ def print_emission_probs(curs):
         for t in tags:
             t = t[0]
             like = queries.get_word_likelihood(curs, w, t)
-            print('{0} {1} {2:.6f}'.format(w, t, like))
+            print('{:>17}'.format(w), end=' ')
+            print('{:>4}'.format(t), end=' ')
+            print('{:<.6f}'.format(like), end='\n')
+            # print('{0} {1} {2:.6f}'.format(w, t, like))
 
 
 def print_tags_observed(curs):
@@ -134,14 +138,19 @@ def print_tag_dist(curs):
 def print_best_path(exec_column):
     best = max(exec_column[-1], key=lambda x: x.element.best_prob_so_far)
 
-    print('word and tagging in reverse')
+    print()
+    print('Viterbi Tagger Output', end='\n\n')
+    printlist = list()
     while best.element.prev:
-        print('word: {0} tag: {1}'.format(best.element.word, best.element.tag))
+        printlist.append((best.element.word, best.element.tag))
         best = best.element.prev
+
+    for item in reversed(printlist):
+        print('{0} tag: {1}'.format(item[0], item[1]))
 
 
 def print_transition_probs(curs):
-    print('Transition Probabilities:')
+    print('Transition Probabilities:', end='\n\n')
     prevtags = queries.get_distinct_tags(curs)
     for pt in prevtags:
         pt = pt[0]
@@ -149,7 +158,7 @@ def print_transition_probs(curs):
         for t in tags:
             t = t[0]
             prob = queries.get_transition_prob2(curs, t, pt)
-            print('[{0} | {1}] {2:.6f}'.format(t, pt, prob), end='')
+            print('[{0} | {1}] {2:.6f}'.format(t, pt, prob), end=' ')
             # sys.stdout.flush()
         print()
 
@@ -170,6 +179,7 @@ def print_num_sentences(curs):
 
 
 def print_tokens_found_in_corpus(curs, words):
+    print('Tokens Found In Corpus:', end='\n\n')
     for i, w in enumerate(words):
 
         isword = queries.is_word_in_corpus(curs, w)
@@ -180,7 +190,7 @@ def print_tokens_found_in_corpus(curs, words):
             for t in tags:
                 t = t[0]
                 like = queries.get_word_likelihood(curs, w, t)
-                print('{0} ({1:.6f})'.format(t, like), end='')
+                print('{0} ({1:.6f})'.format(t, like), end=' ')
             print()
 
 
@@ -211,8 +221,8 @@ if __name__ == '__main__':
     # print_tags_observed(curs)
     # print()
     # print_tag_dist(curs)
-    # print()
-    # print_emission_probs(curs)
+    print()
+    print_emission_probs(curs)
     # print()
     # print_transition_probs(curs)
     # print()
@@ -224,13 +234,13 @@ if __name__ == '__main__':
     # print()
     # print_bigrams(curs)
 
-    with open(test_file) as f:
-        for line in f:
-            print()
-
-            line = line.lower()
-            sent = line.split()
-            # print_tokens_found_in_corpus(curs, sent)
-            print()
-
-            find_tagging(sent)
+    # with open(test_file) as f:
+    #     for line in f:
+    #         print()
+    #
+    #         line = line.lower()
+    #         sent = line.split()
+    #         print_tokens_found_in_corpus(curs, sent)
+    #         print()
+    #
+    #         find_tagging(sent)
