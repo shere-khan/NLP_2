@@ -54,7 +54,7 @@ def initializegraph(cursor, sent, exec_columns):
 def find_tagging(sentence):
     exec_columns = list()
     g = initializegraph(curs, sentence, exec_columns)
-    print('Intermediate Values:',end='\n\n')
+    print('Intermediate Values:', end='\n\n')
     viterbi(g, sentence, exec_columns)
     print_best_path(exec_columns)
 
@@ -110,10 +110,10 @@ def print_emission_probs(curs):
         for t in tags:
             t = t[0]
             like = queries.get_word_likelihood(curs, w, t)
-            print('{:>17}'.format(w), end=' ')
+            print('{:>23}'.format(w), end=' ')
             print('{:>4}'.format(t), end=' ')
             print('{:<.6f}'.format(like), end='\n')
-            # print('{0} {1} {2:.6f}'.format(w, t, like))
+    print()
 
 
 def print_tags_observed(curs):
@@ -122,17 +122,19 @@ def print_tags_observed(curs):
     print('All tags observed:')
     for i, tag in enumerate(tags):
         print("{0} {1}".format(i, tag[0]))
+    print()
 
 
 def print_tag_dist(curs):
     tags = queries.get_distinct_tags(curs)
 
-    print('Initial Distributions')
+    print('Initial Distributions', end='\n\n')
     for tag in tags:
         totsent = queries.get_sentence_total(curs)
         initct = queries.get_tag_initial_prob(curs, tag[0])
         p = initct / totsent
         print('{0} {1:.5f}'.format(tag[0], p))
+    print()
 
 
 def print_best_path(exec_column):
@@ -159,8 +161,8 @@ def print_transition_probs(curs):
             t = t[0]
             prob = queries.get_transition_prob2(curs, t, pt)
             print('[{0} | {1}] {2:.6f}'.format(t, pt, prob), end=' ')
-            # sys.stdout.flush()
         print()
+    print()
 
 
 def print_tag_count(curs):
@@ -175,7 +177,7 @@ def print_lexicals(curs):
 
 def print_num_sentences(curs):
     numsent = queries.get_sentence_total(curs)
-    print('Total # sentences : {0}'.format(numsent))
+    print('Total # sentences : {0}'.format(numsent), end='\n\n')
 
 
 def print_tokens_found_in_corpus(curs, words):
@@ -210,37 +212,31 @@ if __name__ == '__main__':
     print('University of Central Florida')
     print('CAP6640 String 2018 - Dr. Glinos')
     print()
-    print('Viterbi Algorithm HMM Tagger by Justin Barry')
+    print('Viterbi Algorithm HMM Tagger by Justin Barry', end='\n\n')
 
     test_file = sys.argv[1]
+    emissions_flag = sys.argv[2]
 
     conn = sqlite3.connect('../data/corpus.db')
     curs = conn.cursor()
 
-    # print()
-    # print_tags_observed(curs)
-    # print()
-    # print_tag_dist(curs)
-    print()
-    print_emission_probs(curs)
-    # print()
-    # print_transition_probs(curs)
-    # print()
-    # print('Corpus Features: ')
-    # print()
-    # print_tag_count(curs)
-    # print_lexicals(curs)
-    # print_num_sentences(curs)
-    # print()
-    # print_bigrams(curs)
+    print_tags_observed(curs)
+    print_tag_dist(curs)
+    if emissions_flag == 'True':
+        print_emission_probs(curs)
+    print_transition_probs(curs)
+    print('Corpus Features: ', end='\n\n')
+    print_tag_count(curs)
+    print_lexicals(curs)
+    print_num_sentences(curs)
 
-    # with open(test_file) as f:
-    #     for line in f:
-    #         print()
-    #
-    #         line = line.lower()
-    #         sent = line.split()
-    #         print_tokens_found_in_corpus(curs, sent)
-    #         print()
-    #
-    #         find_tagging(sent)
+    with open(test_file) as f:
+        for line in f:
+            print()
+
+            line = line.lower()
+            sent = line.split()
+            print_tokens_found_in_corpus(curs, sent)
+            print()
+
+            find_tagging(sent)
