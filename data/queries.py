@@ -59,6 +59,17 @@ def get_transition_prob(cursor, tag, prevtag):
     return tag_combo_count[0][0] / tagcount[0][0]
 
 
+def get_transition_prob2(cursor, tag, prevtag):
+    cursor.execute('''select count(*) from tag where tag_ = "{pt}"'''.format(pt=prevtag))
+    prevtagcount = cursor.fetchall()
+
+    cursor.execute('''SELECT count(*) FROM tag WHERE tag_ = "{t}" and prev_tag = "{pt}"'''
+                   .format(t=tag, pt=prevtag))
+    tag_combo_count = cursor.fetchall()
+
+    return tag_combo_count[0][0] / prevtagcount[0][0]
+
+
 def get_word_likelihood(cursor, word, tag):
     res1 = get_count_word_and_tag(cursor, word, tag)
     res2 = get_tag_count(cursor, tag)
@@ -67,7 +78,7 @@ def get_word_likelihood(cursor, word, tag):
 
 
 def get_distinct_words(curs):
-    curs.execute('''select distinct word_ from word order by word_ ASC''')
+    curs.execute('''SELECT DISTINCT word_ FROM word ORDER BY word_ ASC''')
 
     return curs.fetchall()
 
@@ -85,7 +96,7 @@ def insert_sentence_total(curs, count):
 
 
 def get_sentence_total(curs):
-    curs.execute('''select tot_sentences FROM statistics''')
+    curs.execute('''SELECT tot_sentences FROM statistics''')
 
     return curs.fetchall()[0][0]
 
@@ -96,3 +107,31 @@ def get_count_word_and_tag(curs, word, tag):
             .format(tg=tag, wd=word))
 
     return curs.fetchall()[0][0]
+
+
+def get_all_distinct_previous_tags_for_tag(curs, tag):
+    curs.execute('''select distinct tag_ from tag where prev_tag = "{tg}"'''
+                 .format(tg=tag))
+
+    return curs.fetchall()
+
+
+def update_tag_add_nexttag(curs, word, tag):
+    curs.execute('''''')
+
+
+def get_all_distinct_tags_for_previous_tag(curs, prevtag):
+    curs.execute('''select distinct tag_ from tag where prev_tag="{pt}" order by tag_ asc 
+    '''.format(
+        pt=prevtag))
+
+    return curs.fetchall()
+
+
+def is_word_in_corpus(curs, word):
+    curs.execute('''select * from word where word_ = "{wd}"'''.format(wd=word))
+    res = curs.fetchall()
+
+    return False if not res else True
+
+

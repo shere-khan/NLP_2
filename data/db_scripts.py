@@ -3,7 +3,7 @@ import sqlite3
 
 def create(c):
     c.execute('''CREATE TABLE word (word_ text, tag_ text, count real)''')
-    c.execute('''CREATE TABLE tag (tag_ text, prev_tag text, count real)''')
+    c.execute('''CREATE TABLE tag (tag_ text, prev_tag text, next_tag text, count real)''')
     c.execute('''CREATE TABLE statistics (tot_sentences real)''')
 
 
@@ -17,8 +17,8 @@ if __name__ == '__main__':
     conn = sqlite3.connect('corpus.db')
     c = conn.cursor()
 
-    create(c)
     # delete(c)
+    # create(c)
 
     conn.commit()
     conn.close()

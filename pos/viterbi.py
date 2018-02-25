@@ -28,15 +28,22 @@ def initializegraph(cursor, sent, exec_columns):
 
     for w in sent:
         nextnodes = list()
-        wtags = queries.get_distinct_tags_for_word(cursor, w)
+
+        isword = queries.is_word_in_corpus(curs, w)
+        if isword:
+            wtags = queries.get_distinct_tags_for_word(cursor, w)
+        else:
+            wtags = [('NN',)]
 
         for wtag in wtags:
-            likelihood = queries.get_word_likelihood(cursor, w, wtag[0])
-            v = g.insert_vertex(WordVertex(w, wtag[0], likelihood))
+            wtag = wtag[0]
+            likelihood = queries.get_word_likelihood(cursor, w, wtag)
+            v = g.insert_vertex(WordVertex(w, wtag, likelihood))
             nextnodes.append(v)
 
             for u in prevnodes:
-                transprob = queries.get_transition_prob(cursor, wtag[0], u.element.tag)
+                # transprob = queries.get_transition_prob(cursor, wtag[0], u.element.tag)
+                transprob = queries.get_transition_prob(cursor, wtag, u.element.tag)
                 g.insert_edge(u, v, transprob)
 
         exec_columns.append(nextnodes)
@@ -115,6 +122,51 @@ def print_best_path(exec_column):
         best = best.element.prev
 
 
+def print_transition_probs(curs):
+    print('Transition Probabilities:')
+    prevtags = queries.get_distinct_tags(curs)
+    for pt in prevtags:
+        pt = pt[0]
+        tags = queries.get_all_distinct_tags_for_previous_tag(curs, pt)
+        for t in tags:
+            t = t[0]
+            prob = queries.get_transition_prob2(curs, t, pt)
+            print('[{0} | {1}] {2:.6f}'.format(t, pt, prob), end='')
+            # sys.stdout.flush()
+        print()
+
+
+def print_all_tags(curs):
+    tags = queries.get_distinct_tags(curs)
+    print('Total # tags: {0}'.format(len(tags)))
+
+
+def print_lexicals(curs):
+    words = queries.get_distinct_words(curs)
+    print('Total # lexicals: {0}'.format(len(words)))
+
+
+def print_num_sentences(curs):
+    numsent = queries.get_sentence_total(curs)
+    print('Total # sentences : {0}'.format(numsent))
+
+
+def print_tokens_found_in_corpus(curs, words):
+
+    for i, w in enumerate(words):
+
+        isword = queries.is_word_in_corpus(curs, w)
+        if isword:
+            tags = queries.get_distinct_tags_for_word(curs, w)
+            # print('Iteration {ct}:'.format(ct=i), end='   ')
+            print('{0} : '.format(w), end=' ')
+            for t in tags:
+                t = t[0]
+                like = queries.get_word_likelihood(curs, w, t)
+                print('{0} ({1:.6f})'.format(t, like), end='')
+            print()
+
+
 if __name__ == '__main__':
     print('University of Central Florida')
     print('CAP6640 String 2018 - Dr. Glinos')
@@ -129,11 +181,15 @@ if __name__ == '__main__':
     # print_tags_observed(curs)
     # print()
     # print_tag_dist(curs)
-    print_emission_probs(curs)
+    # print()
+    # print_emission_probs(curs)
+    # print()
+    # print_transition_probs(curs)
 
     with open(test_file) as f:
         for line in f:
             print()
             line = line.lower()
             sent = line.split()
+            print_tokens_found_in_corpus(curs, sent)
             find_tagging(sent)

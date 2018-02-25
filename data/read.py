@@ -24,7 +24,6 @@ class Stats:
     def __init__(self):
         self.sent_count = 0
 
-
 def readdata():
     file_name = sys.argv[1]
     conn = sqlite3.connect('corpus.db')
@@ -60,6 +59,14 @@ def readdata():
                     word, tag = parse_line(line)
                     queries.insert_word(curs, word, tag)
                     queries.insert_tag_and_prev(curs, tag, "")
+
+            # if i < len(lines):
+            #     nextline = lines[i + 1]
+            #     if nextline != '\n':
+            #         word, tag = parse_line(line)
+            #         nextword, nexttag = parse_line(nextline)
+
+
 
     queries.insert_sentence_total(curs, sent_count)
     conn.commit()
