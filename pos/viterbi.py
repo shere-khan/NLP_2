@@ -136,7 +136,7 @@ def print_transition_probs(curs):
         print()
 
 
-def print_all_tags(curs):
+def print_tag_count(curs):
     tags = queries.get_distinct_tags(curs)
     print('Total # tags: {0}'.format(len(tags)))
 
@@ -152,7 +152,6 @@ def print_num_sentences(curs):
 
 
 def print_tokens_found_in_corpus(curs, words):
-
     for i, w in enumerate(words):
 
         isword = queries.is_word_in_corpus(curs, w)
@@ -167,6 +166,18 @@ def print_tokens_found_in_corpus(curs, words):
             print()
 
 
+def print_bigrams(curs):
+    words = queries.get_distinct_words(curs)
+    tot_bigrams = 0
+    for w in words:
+        w = w[0]
+        bigrams = queries.get_distinct_word_next_word_pairs(curs, w)
+        if bigrams:
+            tot_bigrams += len(bigrams)
+
+    print('Total # bigrams : {0}'.format(tot_bigrams))
+
+
 if __name__ == '__main__':
     print('University of Central Florida')
     print('CAP6640 String 2018 - Dr. Glinos')
@@ -178,6 +189,7 @@ if __name__ == '__main__':
     conn = sqlite3.connect('../data/corpus.db')
     curs = conn.cursor()
 
+    # print()
     # print_tags_observed(curs)
     # print()
     # print_tag_dist(curs)
@@ -185,11 +197,22 @@ if __name__ == '__main__':
     # print_emission_probs(curs)
     # print()
     # print_transition_probs(curs)
+    # print()
+    # print('Corpus Features: ')
+    # print()
+    # print_tag_count(curs)
+    # print_lexicals(curs)
+    # print_num_sentences(curs)
+    # print()
+    print_bigrams(curs)
 
-    with open(test_file) as f:
-        for line in f:
-            print()
-            line = line.lower()
-            sent = line.split()
-            print_tokens_found_in_corpus(curs, sent)
-            find_tagging(sent)
+    # with open(test_file) as f:
+    #     for line in f:
+    #         print()
+    #
+    #         line = line.lower()
+    #         sent = line.split()
+    #         print_tokens_found_in_corpus(curs, sent)
+    #         print()
+    #
+    #         find_tagging(sent)

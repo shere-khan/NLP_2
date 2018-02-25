@@ -3,9 +3,9 @@ def insert(cursor, table_name, column_name, value):
                    .format(tn=table_name, cn=column_name, wv=value))
 
 
-def insert_word(cursor, word, tag):
-    cursor.execute('''insert into word (word_, tag_) values ("{wordval}", "{tg}")'''
-                   .format(wordval=word, tg=tag))
+def insert_word(cursor, word, nextword, tag):
+    cursor.execute('''insert into word (word_, tag_, next_word) values ("{wordval}", 
+    "{tg}", "{nw}")'''.format(wordval=word, tg=tag, nw=nextword))
 
 
 def insert_tag_and_prev(cursor, tag, prevtag):
@@ -116,10 +116,6 @@ def get_all_distinct_previous_tags_for_tag(curs, tag):
     return curs.fetchall()
 
 
-def update_tag_add_nexttag(curs, word, tag):
-    curs.execute('''''')
-
-
 def get_all_distinct_tags_for_previous_tag(curs, prevtag):
     curs.execute('''select distinct tag_ from tag where prev_tag="{pt}" order by tag_ asc 
     '''.format(
@@ -135,3 +131,13 @@ def is_word_in_corpus(curs, word):
     return False if not res else True
 
 
+def update_word_set_next_word(curs, word, nextword):
+    curs.execute('''update word set next_word = "{nw}" where word_ = "{wd}"'''.format(
+        nw=nextword, wd=word))
+
+
+def get_distinct_word_next_word_pairs(curs, word):
+    curs.execute('''select distinct word_, next_word from word where word_ = "{wd}"'''
+                 .format(wd=word));
+
+    return curs.fetchall()
