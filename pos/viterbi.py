@@ -42,7 +42,6 @@ def initializegraph(cursor, sent, exec_columns):
             nextnodes.append(v)
 
             for u in prevnodes:
-                # transprob = queries.get_transition_prob(cursor, wtag[0], u.element.tag)
                 transprob = queries.get_transition_prob(cursor, wtag, u.element.tag)
                 g.insert_edge(u, v, transprob)
 
@@ -55,17 +54,19 @@ def initializegraph(cursor, sent, exec_columns):
 def find_tagging(sentence):
     exec_columns = list()
     g = initializegraph(curs, sentence, exec_columns)
-    viterbi(g, exec_columns)
+    viterbi(g, sentence, exec_columns)
     print_best_path(exec_columns)
 
 
-def viterbi(g, exec_columns):
+def viterbi(g, sent, exec_columns):
     class Path:
         def __init__(self, edge, prob):
             self.edge = edge
             self.prob = prob
 
-    for col in exec_columns:
+    for word, col in zip(sent, exec_columns):
+        print('{0} : '.format(word), end=' ')
+        resultlist = list()
         for v in col:
             edges_in = g.incident_edges(v, outgoing=False)
             probs = list()
@@ -81,6 +82,23 @@ def viterbi(g, exec_columns):
             best_path = max(probs, key=lambda x: x.prob)
             v.element.best_prob_so_far = best_path.prob
             v.element.prev = best_path.edge.opposite(v)
+
+            resultlist.append(((best_path.edge.origin.element.tag, v.element.tag),
+                               best_path.prob))
+        totprob = 0
+        for res in resultlist:
+            prob = res[1]
+            totprob += prob
+
+        for res in resultlist:
+            edges = res[0]
+            prob = res[1]
+            prev = edges[0]
+            cur = edges[1]
+            print('({0:.6f}, {1})'.format(prob/totprob, prev), end=' ')
+            sys.stdout.flush()
+
+        print()
 
 
 def print_emission_probs(curs):
@@ -204,15 +222,15 @@ if __name__ == '__main__':
     # print_lexicals(curs)
     # print_num_sentences(curs)
     # print()
-    print_bigrams(curs)
+    # print_bigrams(curs)
 
-    # with open(test_file) as f:
-    #     for line in f:
-    #         print()
-    #
-    #         line = line.lower()
-    #         sent = line.split()
-    #         print_tokens_found_in_corpus(curs, sent)
-    #         print()
-    #
-    #         find_tagging(sent)
+    with open(test_file) as f:
+        for line in f:
+            print()
+
+            line = line.lower()
+            sent = line.split()
+            # print_tokens_found_in_corpus(curs, sent)
+            print()
+
+            find_tagging(sent)

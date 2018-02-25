@@ -49,7 +49,8 @@ def get_distinct_tags_for_word(cursor, word):
 
 
 def get_transition_prob(cursor, tag, prevtag):
-    cursor.execute('''select count(*) from tag where tag_ = "{t}"'''.format(t=tag))
+    cursor.execute('''select count(*) from tag where prev_tag = "{t}"'''.format(
+        t=prevtag))
     tagcount = cursor.fetchall()
 
     cursor.execute('''SELECT count(*) FROM tag WHERE tag_ = "{t}" and prev_tag = "{pt}"'''
